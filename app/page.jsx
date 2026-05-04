@@ -1,82 +1,222 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
-const Logo = dynamic(() => import('@/components/canvas/Examples').then((mod) => mod.Logo), { ssr: false })
-const Dog = dynamic(() => import('@/components/canvas/Examples').then((mod) => mod.Dog), { ssr: false })
-const Duck = dynamic(() => import('@/components/canvas/Examples').then((mod) => mod.Duck), { ssr: false })
-const View = dynamic(() => import('@/components/canvas/View').then((mod) => mod.View), {
-  ssr: false,
-  loading: () => (
-    <div className='flex h-96 w-full flex-col items-center justify-center'>
-      <svg className='-ml-1 mr-3 h-5 w-5 animate-spin text-black' fill='none' viewBox='0 0 24 24'>
-        <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' />
-        <path
-          className='opacity-75'
-          fill='currentColor'
-          d='M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-        />
-      </svg>
-    </div>
-  ),
-})
-const Common = dynamic(() => import('@/components/canvas/View').then((mod) => mod.Common), { ssr: false })
+const Character = dynamic(() => import('@/components/Character'), { ssr: false })
+const View = dynamic(() => import('@/components/canvas/View').then((m) => m.View), { ssr: false })
+const Common = dynamic(() => import('@/components/canvas/View').then((m) => m.Common), { ssr: false })
 
 export default function Page() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
+
+  const [resetOpen, setResetOpen] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetMsg, setResetMsg] = useState(null)
+
+  // Cinematic progress
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const len = password.length
+
+    if (len === 0) setProgress(0)
+    else if (len < 3) setProgress(0.2)
+    else if (len < 6) setProgress(0.5)
+    else setProgress(1)
+  }, [password])
+
+  const handleLogin = () => {
+    setError(null)
+
+    if (!email || !password) {
+      setError('Lütfen tüm alanları doldurunuz.')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Şifre en az 6 karakter olmalıdır.')
+      return
+    }
+
+    if (email !== 'admin@demo.com' || password !== '123456') {
+      setError('E-posta veya şifre hatalı.')
+      return
+    }
+
+    alert('Giriş başarılı 🚀')
+  }
+
+  const handleReset = () => {
+    setResetMsg(null)
+
+    if (!resetEmail) {
+      setResetMsg('Lütfen e-posta giriniz.')
+      return
+    }
+
+    setResetMsg('Şifre sıfırlama linki e-posta adresinize gönderildi.')
+  }
+
   return (
-    <>
-      <div className='mx-auto flex w-full flex-col flex-wrap items-center md:flex-row  lg:w-4/5'>
-        {/* jumbo */}
-        <div className='flex w-full flex-col items-start justify-center p-12 text-center md:w-2/5 md:text-left'>
-          <p className='w-full uppercase'>Next + React Three Fiber</p>
-          <h1 className='my-4 text-5xl font-bold leading-tight'>Next 3D Starter</h1>
-          <p className='mb-8 text-2xl leading-normal'>A minimalist starter for React, React-three-fiber and Threejs.</p>
-        </div>
+    <div className="flex h-screen w-full overflow-hidden bg-[#0b0b10] text-white">
 
-        <div className='w-full text-center md:w-3/5'>
-          <View className='flex h-96 w-full flex-col items-center justify-center'>
-            <Suspense fallback={null}>
-              <Logo route='/blob' scale={0.6} position={[0, 0, 0]} />
-              <Common />
-            </Suspense>
-          </View>
-        </div>
-      </div>
+      {/* LEFT */}
+      <div className="relative flex w-full items-center justify-center px-8 md:w-1/2">
+        <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl shadow-2xl">
 
-      <div className='mx-auto flex w-full flex-col flex-wrap items-center p-12 md:flex-row  lg:w-4/5'>
-        {/* first row */}
-        <div className='relative h-48 w-full py-6 sm:w-1/2 md:my-12 md:mb-40'>
-          <h2 className='mb-3 text-3xl font-bold leading-none text-gray-800'>Events are propagated</h2>
-          <p className='mb-8 text-gray-600'>Drag, scroll, pinch, and rotate the canvas to explore the 3D scene.</p>
-        </div>
-        <div className='relative my-12 h-48 w-full py-6 sm:w-1/2 md:mb-40'>
-          <View orbit className='relative h-full  sm:h-48 sm:w-full'>
-            <Suspense fallback={null}>
-              <Dog scale={2} position={[0, -1.6, 0]} rotation={[0.0, -0.3, 0]} />
-              <Common color={'lightpink'} />
-            </Suspense>
-          </View>
-        </div>
-        {/* second row */}
-        <div className='relative my-12 h-48 w-full py-6 sm:w-1/2 md:mb-40'>
-          <View orbit className='relative h-full animate-bounce sm:h-48 sm:w-full'>
-            <Suspense fallback={null}>
-              <Duck route='/blob' scale={2} position={[0, -1.6, 0]} />
-              <Common color={'lightblue'} />
-            </Suspense>
-          </View>
-        </div>
-        <div className='w-full p-6 sm:w-1/2'>
-          <h2 className='mb-3 text-3xl font-bold leading-none text-gray-800'>Dom and 3D are synchronized</h2>
-          <p className='mb-8 text-gray-600'>
-            3D Divs are renderer through the View component. It uses gl.scissor to cut the viewport into segments. You
-            tie a view to a tracking div which then controls the position and bounds of the viewport. This allows you to
-            have multiple views with a single, performant canvas. These views will follow their tracking elements,
-            scroll along, resize, etc.
+          <h1 className="text-3xl font-semibold">Welcome</h1>
+          <p className="mt-2 text-sm text-white/60">
+            Sign in to continue
           </p>
+
+          <div className="mt-8 space-y-5">
+
+            {/* EMAIL */}
+            <div className="relative">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder=" "
+                className="peer w-full rounded-xl bg-black/30 px-4 pt-6 pb-2 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-gray-500"
+              />
+              <label className="absolute left-4 top-0 text-xs text-white/60 transition-all
+                peer-placeholder-shown:top-3.5 
+                peer-placeholder-shown:text-sm 
+                peer-placeholder-shown:text-white/40
+                peer-focus:top-1 
+                peer-focus:text-xs 
+                peer-focus:text-gray-100">
+                Email
+              </label>
+            </div>
+
+            {/* PASSWORD */}
+            <div className="relative">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder=" "
+                className="peer w-full rounded-xl bg-black/30 px-4 pt-6 pb-2 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-gray-500"
+              />
+              <label className="absolute left-4 top-0 text-xs text-white/60 transition-all
+                peer-placeholder-shown:top-3.5 
+                peer-placeholder-shown:text-sm 
+                peer-placeholder-shown:text-white/40
+                peer-focus:top-1 
+                peer-focus:text-xs 
+                peer-focus:text-gray-100">
+                Password
+              </label>
+            </div>
+
+            <button
+              onClick={handleLogin}
+              className="w-full rounded-xl bg-gray-800 py-3 font-medium transition hover:bg-gray-700"
+            >
+              Sign In
+            </button>
+          </div>
+
+          {/* ERROR */}
+          <div className="mt-2 text-center text-sm">
+            {error && (
+              <div className="mt-4 text-sm text-gray-300 text-center">
+                  {error}
+                </div>
+            )}
+          </div>
+
+          {/* FORGOT */}
+          <div
+            onClick={() => setResetOpen(true)}
+            className="mt-4 cursor-pointer text-center text-xs text-white/40 hover:text-white/70"
+          >
+            Forgot password?
+          </div>
+
+          {/* RESET */}
+          {resetOpen && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/80 backdrop-blur-3xl" />
+
+              <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-3xl">
+
+                <h2 className="text-xl font-semibold">Reset Password</h2>
+
+                <div className="relative mt-5">
+                  <input
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder=" "
+                    className="peer w-full rounded-xl bg-black/30 px-4 pt-6 pb-2 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-gray-500"
+                  />
+                  <label className="absolute left-4 top-2 text-xs text-white/60">
+                    Email
+                  </label>
+                </div>
+
+                {resetMsg && (
+                  <div className="mt-4 text-green-300 text-sm">
+                    {resetMsg}
+                  </div>
+                )}
+
+                <div className="mt-5 flex gap-3">
+                  <button
+                    onClick={handleReset}
+                    className="flex-1 rounded-xl bg-gray-800 py-2 hover:bg-gray-700"
+                  >
+                    Send
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setResetOpen(false)
+                      setResetEmail('')
+                      setResetMsg(null)
+                    }}
+                    className="flex-1 rounded-xl border border-white/10 py-2 hover:bg-white/10"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </>
+
+      {/* RIGHT - 3D */}
+      <div className="relative hidden w-1/2 overflow-hidden md:flex">
+        <img
+          src="/img/logo2.png"
+          alt="logo bg"
+          className="absolute right-[auto] top-1/2 -translate-y-1/2 w-[750px]
+          opacity-[0.2] pointer-events-none select-none z-0"
+        />
+
+        {/* Blur (wall effect) */}
+        <div
+          className={`absolute inset-0 backdrop-blur-[8px] transition-all duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)]
+          ${progress > 0.3 ? 'opacity-0' : 'opacity-100'}`}
+        />
+
+        {/* Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br via-transparent to-blue-500/10" />
+            
+            <View key={progress > 0 ? 'active' : 'idle'} className="h-full w-full">
+              <Suspense fallback={null}>
+                {progress > 0 && <Character intensity={progress} />}
+                <Common color={''} />
+              </Suspense>
+            </View>        
+      
+        </div>
+      </div>
   )
-}
+} 
