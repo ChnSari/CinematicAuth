@@ -17,6 +17,7 @@ export default function Character({ intensity }) {
   const { scene, animations } = useGLTF('/models/character.glb')
   const { actions } = useAnimations(animations, group)
 
+  // idle anim
   useEffect(() => {
     if (!actions) return
     const idle = Object.values(actions)[0]
@@ -26,10 +27,11 @@ export default function Character({ intensity }) {
     }
   }, [actions])
 
+  // initial pose
   useEffect(() => {
     if (!group.current) return
     group.current.position.set(-3.2, -1.7, -1.6)
-    group.current.rotation.set(0, 1.3, -0.1)
+    group.current.rotation.set(0, 1.4, -0.1)
   }, [])
 
   useFrame((state, dt) => {
@@ -37,37 +39,60 @@ export default function Character({ intensity }) {
 
     const t = state.clock.elapsedTime
 
-    //PHASES
+    // PHASES
     const look = clamp01(intensity / 0.15)
     const head = clamp01((intensity - 0.15) / 0.15)
     const body = clamp01((intensity - 0.3) / 0.4)
     const full = clamp01((intensity - 0.7) / 0.3)
 
     const headEase = head * head
-    const bodyEase = 1 - Math.pow(1 - body, 2)
     const fullEase = Math.pow(full, 1.6)
 
+    // POSITION (Kenardan Bakmak)
 
-    const targetZ = -1.6 + headEase * 0.9
-    const targetX = -3.2 + bodyEase * 2.0
-    const finalX = targetX + fullEase * 0.5
-    const finalZ = targetZ + fullEase * 0.4
+    const baseX = -3.2
+    const baseZ = -1.6
+
+    // çok hafif peek
+    const peek = headEase * 0.25
+
+    // canlılık için micro hareket
+    const idleShift = Math.sin(t * 0.8) * 0.03 * (1 - fullEase)
+
+    const finalX = baseX + peek + idleShift
+    const finalZ = baseZ + peek * 0.2
 
     group.current.position.x = damp(group.current.position.x, finalX, 2.2, dt)
     group.current.position.z = damp(group.current.position.z, finalZ, 2.2, dt)
     group.current.position.y = -1.3
 
-
-    // gaze at the screen
+    // ROTATION (Bakış - canlılık)
     const lookWeight = 1 - head
-    const lookRotY = 1.1
-    const curiosity = Math.sin(t * 1.2) * 0.2 * (1 - fullEase)
-    const normalRotY = 1.5 - fullEase * 1.3 + curiosity
-    const targetRotZ = -0.1 + fullEase * 0.05
 
-    //BLEND
+    const lookRotY = 1.1
+
+    // merak efekti (çok önemli)
+    const curiosity =
+      Math.sin(t * 1.2) * 0.2 * (1 - fullEase)
+
+    // ekstra mikro kafa hareketi
+    const microHead =
+      Math.sin(t * 2.3) * 0.05 * (1 - fullEase)
+
+    const normalRotY =
+      1.5 - fullEase * 1.2 + curiosity + microHead
+
+    const lookTilt = look * -0.25
+    
+    const targetRotZ =
+      -0.1 +
+      lookTilt +
+      Math.sin(t * 1.5) * 0.03 * (1 - fullEase) +
+      fullEase * 0.05
+  
     const finalRotY =
-      lookRotY * lookWeight + normalRotY * (1 - lookWeight)
+      lookRotY * lookWeight +
+      normalRotY * (1 - lookWeight)
 
     group.current.rotation.y = damp(group.current.rotation.y, finalRotY, 2.5, dt)
     group.current.rotation.z = damp(group.current.rotation.z, targetRotZ, 2.5, dt)

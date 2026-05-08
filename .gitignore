@@ -1,71 +1,71 @@
-# dependencies
+# Dependencies
 /node_modules
 
-# next.js
-/.next/
-/.next/cache/
-/out/
+# Next.js build output
+.next/
+out/
+build/
 
-# production
-/build
+# Next cache
+.next/cache/
 
+# Production
+dist/
 
-# testing
-/coverage
+# Testing
+coverage/
 
+# Environment Variables (KRİTİK)
+.env*
+!.env.example
 
-# environment variables (KRİTİK)
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-
-# vercel
+# Vercel
 .vercel
 
+# PWA
+public/sw.js
+public/workbox-*.js
 
-# next-pwa
-/public/workbox-*.js
-/public/sw.js
-
-
-# logs
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-
-# OS
+# OS Files
 .DS_Store
 Thumbs.db
 
-
-# editor
+# Editor / IDE
 .vscode/
 .idea/
 
-
-# cache
+# Cache
 .cache/
 .parcel-cache/
 
-
-# temp
-*.log
+# Temp files
 *.tmp
 *.swp
 
-
-# certificates
+# Certificates
 *.pem
 
-
-# reports
+# Reports
 report.*.json
 
+# TypeScript
+*.tsbuildinfo
 
-# lock file (opsiyonel)
-package-lock.json
+# Optional Lock Files
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Misc
+*.local
+
+# 3D / Assets (OPSİYONEL)
+# public/models/*.glb
+# public/models/*.gltf
