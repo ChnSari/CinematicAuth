@@ -195,4 +195,3 @@ MIT License
 * LinkedIn: https://linkedin.com/in/cihansri
 * Email: [cihannsri@gmail.com](mailto:cihannsri@gmail.com)
 
-Building modern, interactive and product-level web experiences.
