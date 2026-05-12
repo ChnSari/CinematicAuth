@@ -183,7 +183,7 @@ where user actions directly shape the experience.
 
 ##  License
 
-MIT License
+[MIT](https://choosealicense.com/licenses/mit/)
 
 ---
 
