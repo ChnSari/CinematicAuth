@@ -41,11 +41,8 @@ export default function Character({ intensity }) {
 
     // PHASES
     const look = clamp01(intensity / 0.15)
-    const head = clamp01((intensity - 0.15) / 0.15)
-    const body = clamp01((intensity - 0.3) / 0.4)
     const full = clamp01((intensity - 0.7) / 0.3)
 
-    const headEase = head * head
     const fullEase = Math.pow(full, 1.6)
 
     // POSITION (Kenardan Bakmak)
@@ -54,7 +51,7 @@ export default function Character({ intensity }) {
     const baseZ = -1.6
 
     // çok hafif peek
-    const peek = headEase * 0.25
+    const peek = look * 0.25
 
     // canlılık için micro hareket
     const idleShift = Math.sin(t * 0.8) * 0.03 * (1 - fullEase)
@@ -67,11 +64,11 @@ export default function Character({ intensity }) {
     group.current.position.y = -1.3
 
     // ROTATION (Bakış - canlılık)
-    const lookWeight = 1 - head
+    const lookWeight = 1 - full
 
     const lookRotY = 1.1
 
-    // merak efekti (çok önemli)
+    // merak efekti
     const curiosity =
       Math.sin(t * 1.2) * 0.2 * (1 - fullEase)
 
